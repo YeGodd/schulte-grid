@@ -5,15 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>舒尔特方格 - 注意力训练</title>
 
-    <!-- ==================== Supabase SDK（国内备用CDN） ==================== -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Supabase SDK（异步加载，不阻塞页面） -->
     <script>
-        // 如果 unpkg 也加载失败，尝试 jsdelivr
-        if (typeof window.supabase === 'undefined') {
-            var s = document.createElement('script');
-            s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        (function(){
+            var CDN1='https://unpkg.com/@supabase/supabase-js@2';
+            var CDN2='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            var s=document.createElement('script');
+            s.onload=function(){window._supabaseReady=true;if(window._scb)window._scb();};
+            s.onerror=function(){
+                if(s.src===CDN1){s.src=CDN2;document.head.appendChild(s);}
+                else{window._supabaseReady=true;if(window._scb)window._scb();}
+            };
+            s.src=CDN1;
             document.head.appendChild(s);
-        }
+        })();
     </script>
 
     <style>
@@ -54,7 +59,6 @@
             color: #555;
         }
 
-        /* 多人模式下的特殊样式 */
         body.multiplayer h1 {
             margin-bottom: 20px;
         }
@@ -201,7 +205,7 @@
             color: white;
         }
 
-        /* ==================== 锁定按钮样式 ==================== */
+        /* 锁定按钮 */
         .difficulty-btn.locked {
             cursor: pointer;
             color: #999;
@@ -271,7 +275,6 @@
             color: white;
         }
 
-        /* 锁定模式按钮 */
         .mode-btn.locked {
             cursor: pointer;
             color: #999;
@@ -366,7 +369,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
-        /* ==================== 完成弹窗 ==================== */
+        /* 完成弹窗 */
         .modal {
             display: none;
             position: fixed;
@@ -438,14 +441,8 @@
         }
 
         @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.05);
-                opacity: 0.8;
-            }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
         }
 
         .modal-button {
@@ -467,7 +464,7 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* ==================== 激活码弹窗样式 ==================== */
+        /* 激活码弹窗 */
         .activation-modal {
             display: none;
             position: fixed;
@@ -596,7 +593,7 @@
             text-decoration: underline;
         }
 
-        /* ==================== Toast 提示样式 ==================== */
+        /* Toast 提示 */
         .toast {
             position: fixed;
             top: 30px;
@@ -628,28 +625,16 @@
         }
 
         @keyframes toastSlideIn {
-            from {
-                transform: translateX(-50%) translateY(-30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(-50%) translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateX(-50%) translateY(-30px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
 
         @keyframes toastSlideOut {
-            from {
-                transform: translateX(-50%) translateY(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(-50%) translateY(-30px);
-                opacity: 0;
-            }
+            from { transform: translateX(-50%) translateY(0); opacity: 1; }
+            to { transform: translateX(-50%) translateY(-30px); opacity: 0; }
         }
 
-        /* ==================== 购买引导区域 ==================== */
+        /* 购买引导 */
         .purchase-cta {
             margin-top: 40px;
             padding: 20px;
@@ -687,14 +672,8 @@
         }
 
         @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .confetti {
@@ -705,14 +684,8 @@
         }
 
         @keyframes confettiFall {
-            0% {
-                transform: translateY(-10px) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) rotate(720deg);
-                opacity: 0;
-            }
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
 
         .firework {
@@ -725,50 +698,19 @@
         }
 
         @keyframes fireworkExplode {
-            0% {
-                transform: translate(0, 0) scale(1);
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { opacity: 0; }
         }
 
-        /* ==================== 响应式适配 ==================== */
+        /* 响应式 */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-                margin-bottom: 25px;
-            }
-
-            .difficulty-btn {
-                padding: 10px 16px;
-                font-size: 1rem;
-                min-width: 90px;
-            }
-
-            .mode-btn {
-                padding: 10px 18px;
-                font-size: 1rem;
-                min-width: 140px;
-            }
-
-            .activation-modal-content {
-                margin: 20% auto;
-                padding: 25px;
-            }
-
-            .activation-title {
-                font-size: 1.5rem;
-            }
-
-            .multiplayer-container {
-                gap: 30px;
-            }
-
-            .player-area {
-                padding: 15px;
-            }
+            h1 { font-size: 2.5rem; margin-bottom: 25px; }
+            .difficulty-btn { padding: 10px 16px; font-size: 1rem; min-width: 90px; }
+            .mode-btn { padding: 10px 18px; font-size: 1rem; min-width: 140px; }
+            .activation-modal-content { margin: 20% auto; padding: 25px; }
+            .activation-title { font-size: 1.5rem; }
+            .multiplayer-container { gap: 30px; }
+            .player-area { padding: 15px; }
         }
     </style>
 </head>
@@ -807,7 +749,7 @@
                 </div>
             </div>
 
-            <!-- ==================== 免费版购买引导 ==================== -->
+            <!-- 免费版购买引导 -->
             <div class="purchase-cta" id="purchaseCta">
                 <div class="purchase-cta-text">🔒 想解锁全部 6 档难度和 3 人同时挑战模式？</div>
                 <button class="purchase-cta-btn" id="purchaseBtn">6.6 元获取激活码 →</button>
@@ -830,7 +772,6 @@
 
             <!-- 多人模式 -->
             <div class="multiplayer-container" id="multiplayerContainer" style="display: none;">
-                <!-- 玩家1 -->
                 <div class="player-area">
                     <div class="player-label">玩家1</div>
                     <div class="player-timer" id="player1Timer">00:00.000</div>
@@ -839,8 +780,6 @@
                         <button class="player-button" id="player1RestartBtn">重新开始</button>
                     </div>
                 </div>
-
-                <!-- 玩家2 -->
                 <div class="player-area">
                     <div class="player-label">玩家2</div>
                     <div class="player-timer" id="player2Timer">00:00.000</div>
@@ -850,8 +789,6 @@
                         <button class="player-button" id="multiplayerChangeDifficultyBtn">更换难度</button>
                     </div>
                 </div>
-
-                <!-- 玩家3 -->
                 <div class="player-area">
                     <div class="player-label">玩家3</div>
                     <div class="player-timer" id="player3Timer">00:00.000</div>
@@ -863,7 +800,7 @@
             </div>
         </div>
 
-        <!-- ==================== 完成弹窗 ==================== -->
+        <!-- 完成弹窗 -->
         <div class="modal" id="modal">
             <div class="modal-content">
                 <div class="modal-title">恭喜完成！</div>
@@ -885,7 +822,7 @@
             </div>
         </div>
 
-        <!-- ==================== 激活码弹窗 ==================== -->
+        <!-- 激活码弹窗 -->
         <div class="activation-modal" id="activationModal">
             <div class="activation-modal-content">
                 <div class="activation-title">🔓 解锁完整版</div>
@@ -911,62 +848,72 @@
             </div>
         </div>
 
-        <!-- ==================== Toast 提示 ==================== -->
+        <!-- Toast -->
         <div class="toast" id="toast" style="display: none;"></div>
     </div>
 
     <script>
-        // ==================== Supabase 配置（请填入你的 Supabase 项目信息） ====================
-        const SUPABASE_URL = 'https://abcdefghijklm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-        const SUPABASE_TABLE = 'schulte_codes';
+        // ============================================================
+        //  Supabase 配置
+        // ============================================================
+        var SUPABASE_URL = 'https://wfpdjvzwkdefqyzoklqh.supabase.co';
+        var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcGRqdnp3a2RlZnF5em9rbHFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDM4MzgsImV4cCI6MjA5NjQ3OTgzOH0.cUPMjo7HwqoieQO_wWjYnW_DJ9Q1v_ifR25FjUj-TPE';
+        var SUPABASE_TABLE = 'schulte_codes';
 
-        // ==================== Supabase 初始化 ====================
-        let supabase = null;
-        try {
-            if (SUPABASE_URL && SUPABASE_URL !== '你的-Supabase-项目-URL') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Supabase 初始化（等 CDN 异步加载完再初始化）
+        var supabase = null;
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined') {
+                try {
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                } catch (e) {
+                    console.warn('Supabase init error:', e);
+                }
             }
-        } catch (e) {
-            console.warn('Supabase 初始化失败:', e);
+        }
+        if (window._supabaseReady) {
+            initSupabase();
+        } else {
+            window._scb = initSupabase;
         }
 
-        // ==================== DOM 引用 ====================
-        const grid = document.getElementById('grid');
-        const timerDisplay = document.getElementById('timer');
-        const restartBtn = document.getElementById('restartBtn');
-        const changeDifficultyBtn = document.getElementById('changeDifficultyBtn');
-        const message = document.getElementById('message');
-        const difficultySelection = document.getElementById('difficultySelection');
-        const gameArea = document.getElementById('gameArea');
-        const gameInfo = document.getElementById('gameInfo');
-        const activationModal = document.getElementById('activationModal');
-        const activationCodeInput = document.getElementById('activationCodeInput');
-        const activationError = document.getElementById('activationError');
-        const activationSubmitBtn = document.getElementById('activationSubmitBtn');
-        const activationCancelBtn = document.getElementById('activationCancelBtn');
-        const activationPurchaseLink = document.getElementById('activationPurchaseLink');
-        const purchaseCta = document.getElementById('purchaseCta');
-        const purchaseBtn = document.getElementById('purchaseBtn');
-        const toast = document.getElementById('toast');
+        // ============================================================
+        //  DOM 引用
+        // ============================================================
+        var grid = document.getElementById('grid');
+        var timerDisplay = document.getElementById('timer');
+        var restartBtn = document.getElementById('restartBtn');
+        var changeDifficultyBtn = document.getElementById('changeDifficultyBtn');
+        var message = document.getElementById('message');
+        var difficultySelection = document.getElementById('difficultySelection');
+        var gameArea = document.getElementById('gameArea');
+        var gameInfo = document.getElementById('gameInfo');
+        var activationModal = document.getElementById('activationModal');
+        var activationCodeInput = document.getElementById('activationCodeInput');
+        var activationError = document.getElementById('activationError');
+        var activationSubmitBtn = document.getElementById('activationSubmitBtn');
+        var activationCancelBtn = document.getElementById('activationCancelBtn');
+        var activationPurchaseLink = document.getElementById('activationPurchaseLink');
+        var purchaseCta = document.getElementById('purchaseCta');
+        var purchaseBtn = document.getElementById('purchaseBtn');
+        var toast = document.getElementById('toast');
 
-        // ==================== 游戏状态 ====================
-        let numbers = [];
-        let currentNumber = 1;
-        let startTime = null;
-        let timerInterval = null;
-        let gameStarted = false;
-        let gridSize = 5;
-        let maxNumber = 25;
-        let victoryAudio = null;
-        let bestTimes = {};
-        let currentMode = 'single';
-
-        // ==================== 激活状态 ====================
-        let isActivated = false;
+        // ============================================================
+        //  游戏状态
+        // ============================================================
+        var numbers = [];
+        var currentNumber = 1;
+        var startTime = null;
+        var timerInterval = null;
+        var gameStarted = false;
+        var gridSize = 5;
+        var maxNumber = 25;
+        var bestTimes = {};
+        var currentMode = 'single';
+        var isActivated = false;
 
         // 多人模式玩家数据
-        let players = [
+        var players = [
             {
                 id: 1,
                 grid: document.getElementById('player1Grid'),
@@ -1002,14 +949,12 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
             }
         ];
 
-        // ==================== 激活码系统 ====================
+        // ============================================================
+        //  激活码系统
+        // ============================================================
 
-        /**
-         * 页面加载时检查 localStorage 中的激活状态
-         */
         function checkActivationStatus() {
-            const saved = localStorage.getItem('schulte_activated');
-            if (saved === 'true') {
+            if (localStorage.getItem('schulte_activated') === 'true') {
                 isActivated = true;
                 unlockAllFeatures();
             } else {
@@ -1018,400 +963,279 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
             }
         }
 
-        /**
-         * 解锁全部高级功能
-         */
         function unlockAllFeatures() {
-            // 解锁难度按钮
-            document.querySelectorAll('.difficulty-btn.locked').forEach(btn => {
+            document.querySelectorAll('.difficulty-btn.locked').forEach(function(btn) {
                 btn.classList.remove('locked');
-                const lockIcon = btn.querySelector('.lock-icon');
-                if (lockIcon) lockIcon.remove();
+                var icon = btn.querySelector('.lock-icon');
+                if (icon) icon.remove();
             });
-
-            // 解锁多人模式按钮
-            const multiModeBtn = document.querySelector('.mode-btn[data-mode="multi"]');
-            if (multiModeBtn) {
-                multiModeBtn.classList.remove('locked');
-                const lockIcon = multiModeBtn.querySelector('.lock-icon');
-                if (lockIcon) lockIcon.remove();
+            var multiBtn = document.querySelector('.mode-btn[data-mode="multi"]');
+            if (multiBtn) {
+                multiBtn.classList.remove('locked');
+                var icon = multiBtn.querySelector('.lock-icon');
+                if (icon) icon.remove();
             }
-
-            // 隐藏购买引导
-            if (purchaseCta) {
-                purchaseCta.style.display = 'none';
-            }
-
+            if (purchaseCta) purchaseCta.style.display = 'none';
             isActivated = true;
         }
 
-        /**
-         * 锁定高级功能（免费版状态）
-         */
         function lockPremiumFeatures() {
-            // 给 7×7、8×8、9×9 添加锁定
-            const lockedSizes = ['7', '8', '9'];
-            document.querySelectorAll('.difficulty-btn').forEach(btn => {
-                const size = btn.dataset.size;
-                if (lockedSizes.includes(size) && !btn.classList.contains('locked')) {
-                    btn.classList.add('locked');
-                    if (!btn.querySelector('.lock-icon')) {
-                        const lockSpan = document.createElement('span');
-                        lockSpan.className = 'lock-icon';
-                        lockSpan.textContent = '🔒';
-                        btn.appendChild(lockSpan);
+            ['7','8','9'].forEach(function(size) {
+                document.querySelectorAll('.difficulty-btn').forEach(function(btn) {
+                    if (btn.dataset.size === size && !btn.classList.contains('locked')) {
+                        btn.classList.add('locked');
+                        if (!btn.querySelector('.lock-icon')) {
+                            var span = document.createElement('span');
+                            span.className = 'lock-icon';
+                            span.textContent = '🔒';
+                            btn.appendChild(span);
+                        }
                     }
-                }
+                });
             });
-
-            // 锁定多人模式
-            const multiModeBtn = document.querySelector('.mode-btn[data-mode="multi"]');
-            if (multiModeBtn && !multiModeBtn.classList.contains('locked')) {
-                multiModeBtn.classList.add('locked');
-                if (!multiModeBtn.querySelector('.lock-icon')) {
-                    const lockSpan = document.createElement('span');
-                    lockSpan.className = 'lock-icon';
-                    lockSpan.textContent = '🔒';
-                    multiModeBtn.appendChild(lockSpan);
+            var multiBtn = document.querySelector('.mode-btn[data-mode="multi"]');
+            if (multiBtn && !multiBtn.classList.contains('locked')) {
+                multiBtn.classList.add('locked');
+                if (!multiBtn.querySelector('.lock-icon')) {
+                    var span = document.createElement('span');
+                    span.className = 'lock-icon';
+                    span.textContent = '🔒';
+                    multiBtn.appendChild(span);
                 }
             }
-
-            // 如果当前选择了多人模式，切换回单人模式
             if (currentMode === 'multi') {
                 currentMode = 'single';
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
-                const singleBtn = document.querySelector('.mode-btn[data-mode="single"]');
+                document.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.remove('selected'); });
+                var singleBtn = document.querySelector('.mode-btn[data-mode="single"]');
                 if (singleBtn) singleBtn.classList.add('selected');
             }
-
-            // 显示购买引导
-            if (purchaseCta) {
-                purchaseCta.style.display = 'block';
-            }
-
+            if (purchaseCta) purchaseCta.style.display = 'block';
             isActivated = false;
         }
 
-        /**
-         * 检查操作是否需要激活码
-         * @param {string} size - 难度大小
-         * @param {string} mode - 游戏模式
-         * @returns {boolean} - true 表示允许操作，false 表示需要激活
-         */
-        function checkAccess(size, mode) {
-            if (isActivated) return true;
-
-            const lockedSizes = ['7', '8', '9'];
-            if (lockedSizes.includes(size) || mode === 'multi') {
-                showActivationModal();
-                return false;
-            }
-            return true;
-        }
-
-        /**
-         * 显示激活码弹窗
-         */
         function showActivationModal() {
             activationModal.style.display = 'block';
             activationCodeInput.value = '';
             activationError.textContent = '';
             activationSubmitBtn.disabled = false;
             activationSubmitBtn.textContent = '确认激活';
-            setTimeout(() => {
-                activationCodeInput.focus();
-            }, 100);
+            setTimeout(function() { activationCodeInput.focus(); }, 100);
         }
 
-        /**
-         * 关闭激活码弹窗
-         */
         function hideActivationModal() {
             activationModal.style.display = 'none';
             activationCodeInput.value = '';
             activationError.textContent = '';
         }
 
-        /**
-         * 显示 Toast 提示
-         * @param {string} msg - 提示文本
-         * @param {'success'|'error'} type - 类型
-         * @param {number} duration - 持续时间（毫秒）
-         */
         function showToast(msg, type, duration) {
-            // 清除之前的定时器
-            if (toast._timeout) clearTimeout(toast._timeout);
-            if (toast._fadeTimeout) clearTimeout(toast._fadeTimeout);
-
+            if (toast._t) clearTimeout(toast._t);
+            if (toast._ft) clearTimeout(toast._ft);
             toast.className = 'toast ' + type;
             toast.textContent = msg;
             toast.style.display = 'block';
             toast.classList.remove('fade-out');
-
-            toast._fadeTimeout = setTimeout(() => {
-                toast.classList.add('fade-out');
-            }, duration - 400);
-
-            toast._timeout = setTimeout(() => {
-                toast.style.display = 'none';
-                toast.classList.remove('fade-out');
-            }, duration);
+            toast._ft = setTimeout(function() { toast.classList.add('fade-out'); }, duration - 400);
+            toast._t = setTimeout(function() { toast.style.display = 'none'; toast.classList.remove('fade-out'); }, duration);
         }
 
-        /**
-         * 验证激活码
-         * @param {string} code - 用户输入的激活码
-         */
-        async function activateCode(code) {
-            // 禁用提交按钮，显示加载状态
+        function activateCode(code) {
             activationSubmitBtn.disabled = true;
             activationSubmitBtn.textContent = '验证中...';
             activationError.textContent = '';
 
-            try {
-                if (!supabase) {
-                    activationError.textContent = '系统配置错误，请联系管理员';
-                    activationSubmitBtn.disabled = false;
-                    activationSubmitBtn.textContent = '确认激活';
-                    return;
-                }
-
-                // 查询激活码
-                const { data, error } = await supabase
-                    .from(SUPABASE_TABLE)
-                    .select('*')
-                    .eq('code', code)
-                    .single();
-
-                if (error && error.code !== 'PGRST116') {
-                    // PGRST116 = 没有找到记录（正常情况）
-                    throw error;
-                }
-
-                if (!data) {
-                    // 激活码不存在
-                    activationError.textContent = '激活码无效，请检查后重试';
-                    activationSubmitBtn.disabled = false;
-                    activationSubmitBtn.textContent = '确认激活';
-                    return;
-                }
-
-                if (data.is_used) {
-                    // 激活码已被使用
-                    activationError.textContent = '该激活码已被使用，每个激活码仅限一人使用';
-                    activationSubmitBtn.disabled = false;
-                    activationSubmitBtn.textContent = '确认激活';
-                    return;
-                }
-
-                // 激活码有效且未使用 → 标记为已使用
-                const { error: updateError } = await supabase
-                    .from(SUPABASE_TABLE)
-                    .update({ is_used: true, used_at: new Date().toISOString() })
-                    .eq('code', code);
-
-                if (updateError) {
-                    throw updateError;
-                }
-
-                // 激活成功！
-                localStorage.setItem('schulte_activated', 'true');
-                isActivated = true;
-                unlockAllFeatures();
-                hideActivationModal();
-                showToast('✅ 激活成功！全部功能已解锁', 'success', 2000);
-
-            } catch (e) {
-                console.error('激活码验证错误:', e);
-                if (e.message && e.message.includes('fetch')) {
-                    activationError.textContent = '网络错误，请稍后重试';
-                } else {
-                    activationError.textContent = '验证失败，请稍后重试';
-                }
+            if (!supabase) {
+                activationError.textContent = '网络连接中，请稍后重试（CDN加载中）';
                 activationSubmitBtn.disabled = false;
                 activationSubmitBtn.textContent = '确认激活';
-            }
-        }
-
-        // ==================== 激活码弹窗事件绑定 ====================
-
-        // 提交激活码
-        activationSubmitBtn.addEventListener('click', () => {
-            const code = activationCodeInput.value.trim().toUpperCase();
-            if (!code) {
-                activationError.textContent = '请输入激活码';
                 return;
             }
+
+            supabase.from(SUPABASE_TABLE).select('*').eq('code', code).single()
+                .then(function(result) {
+                    var data = result.data;
+                    var error = result.error;
+
+                    if (error && error.code !== 'PGRST116') throw error;
+
+                    if (!data) {
+                        activationError.textContent = '激活码无效，请检查后重试';
+                        activationSubmitBtn.disabled = false;
+                        activationSubmitBtn.textContent = '确认激活';
+                        return;
+                    }
+
+                    if (data.is_used) {
+                        activationError.textContent = '该激活码已被使用，每个激活码仅限一人使用';
+                        activationSubmitBtn.disabled = false;
+                        activationSubmitBtn.textContent = '确认激活';
+                        return;
+                    }
+
+                    return supabase.from(SUPABASE_TABLE)
+                        .update({ is_used: true, used_at: new Date().toISOString() })
+                        .eq('code', code)
+                        .then(function(updateResult) {
+                            if (updateResult.error) throw updateResult.error;
+                            localStorage.setItem('schulte_activated', 'true');
+                            isActivated = true;
+                            unlockAllFeatures();
+                            hideActivationModal();
+                            showToast('✅ 激活成功！全部功能已解锁', 'success', 2000);
+                        });
+                })
+                .catch(function(e) {
+                    console.error('Activation error:', e);
+                    if (e.message && e.message.indexOf('fetch') !== -1) {
+                        activationError.textContent = '网络错误，请稍后重试';
+                    } else {
+                        activationError.textContent = '验证失败，请稍后重试';
+                    }
+                    activationSubmitBtn.disabled = false;
+                    activationSubmitBtn.textContent = '确认激活';
+                });
+        }
+
+        // ============================================================
+        //  激活码弹窗事件
+        // ============================================================
+        activationSubmitBtn.addEventListener('click', function() {
+            var code = activationCodeInput.value.trim().toUpperCase();
+            if (!code) { activationError.textContent = '请输入激活码'; return; }
             activateCode(code);
         });
 
-        // 回车键提交
-        activationCodeInput.addEventListener('keydown', (e) => {
+        activationCodeInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                const code = activationCodeInput.value.trim().toUpperCase();
-                if (!code) {
-                    activationError.textContent = '请输入激活码';
-                    return;
-                }
+                var code = activationCodeInput.value.trim().toUpperCase();
+                if (!code) { activationError.textContent = '请输入激活码'; return; }
                 activateCode(code);
             }
         });
 
-        // 自动转大写
-        activationCodeInput.addEventListener('input', () => {
+        activationCodeInput.addEventListener('input', function() {
             activationCodeInput.value = activationCodeInput.value.toUpperCase();
         });
 
-        // 关闭弹窗
         activationCancelBtn.addEventListener('click', hideActivationModal);
 
-        // 点击弹窗背景关闭
-        activationModal.addEventListener('click', (e) => {
-            if (e.target === activationModal) {
-                hideActivationModal();
-            }
+        activationModal.addEventListener('click', function(e) {
+            if (e.target === activationModal) hideActivationModal();
         });
 
-        // 购买链接
-        purchaseBtn.addEventListener('click', () => {
+        purchaseBtn.addEventListener('click', function() {
             showActivationModal();
         });
-        activationPurchaseLink.addEventListener('click', (e) => {
+
+        activationPurchaseLink.addEventListener('click', function(e) {
             e.preventDefault();
-            // TODO: 替换为实际的购买链接
             showToast('购买链接即将上线，敬请期待', 'success', 2000);
         });
 
-        // ==================== 原有游戏逻辑 ====================
+        // ============================================================
+        //  音效引擎
+        // ============================================================
+        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-        // 从本地存储加载最佳成绩
-        function loadBestTimes() {
-            const saved = localStorage.getItem('schulteBestTimes');
-            if (saved) {
-                bestTimes = JSON.parse(saved);
+        function playCorrectSound() {
+            var osc = audioContext.createOscillator();
+            var gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            osc.frequency.setValueAtTime(440, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(523.25, audioContext.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.03, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.005, audioContext.currentTime + 0.15);
+            osc.type = 'sine';
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.15);
+        }
+
+        function playVictorySound() {
+            var notes = [392.00, 523.25, 659.25, 783.99];
+            var durations = [0.3, 0.3, 0.3, 0.6];
+            var t = audioContext.currentTime;
+            notes.forEach(function(freq, i) {
+                var osc = audioContext.createOscillator();
+                var gain = audioContext.createGain();
+                osc.connect(gain); gain.connect(audioContext.destination);
+                osc.frequency.setValueAtTime(freq, t);
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.06, t + 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.005, t + durations[i]);
+                osc.type = 'sine';
+                osc.start(t); osc.stop(t + durations[i]);
+                t += durations[i];
+            });
+        }
+
+        function stopAllSounds() {
+            if (audioContext.state === 'running') {
+                audioContext.suspend();
+                setTimeout(function() { audioContext.resume(); }, 100);
             }
         }
 
-        // 保存最佳成绩到本地存储
+        // ============================================================
+        //  烟花特效
+        // ============================================================
+        function createFirework(x, y) {
+            var colors = ['#ff6b6b','#feca57','#48dbfb','#ff9ff3','#54a0ff','#5f27cd','#00d2d3','#ff9f43'];
+            for (var i = 0; i < 30; i++) {
+                var p = document.createElement('div');
+                p.className = 'firework';
+                var color = colors[Math.floor(Math.random() * colors.length)];
+                p.style.backgroundColor = color;
+                p.style.boxShadow = '0 0 6px ' + color;
+                p.style.left = x + 'px';
+                p.style.top = y + 'px';
+                var angle = (Math.PI * 2 * i) / 30;
+                var vel = 80 + Math.random() * 60;
+                p.style.animation = 'fireworkExplode 1s ease-out forwards';
+                p.style.transform = 'translate(' + Math.cos(angle)*vel + 'px, ' + Math.sin(angle)*vel + 'px) scale(0)';
+                document.body.appendChild(p);
+                setTimeout(function() { p.remove(); }, 1000);
+            }
+        }
+
+        function createFireworks() {
+            var cx = window.innerWidth / 2;
+            var cy = window.innerHeight / 2;
+            setTimeout(function() { createFirework(cx - 200, cy - 100); }, 0);
+            setTimeout(function() { createFirework(cx, cy - 150); }, 200);
+            setTimeout(function() { createFirework(cx + 200, cy - 100); }, 400);
+        }
+
+        // ============================================================
+        //  游戏逻辑
+        // ============================================================
+        function loadBestTimes() {
+            var saved = localStorage.getItem('schulteBestTimes');
+            if (saved) bestTimes = JSON.parse(saved);
+        }
+
         function saveBestTimes() {
             localStorage.setItem('schulteBestTimes', JSON.stringify(bestTimes));
         }
 
-        // 创建正确点击音效（使用Web Audio API生成清脆的"叮"声）
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-        function playCorrectSound() {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(523.25, audioContext.currentTime + 0.05);
-
-            gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.005, audioContext.currentTime + 0.15);
-
-            oscillator.type = 'sine';
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.15);
-        }
-
-        // 创建胜利音效（使用Web Audio API生成欢快的音乐）
-        function playVictorySound() {
-            const notes = [392.00, 523.25, 659.25, 783.99];
-            const durations = [0.3, 0.3, 0.3, 0.6];
-            let currentTime = audioContext.currentTime;
-
-            notes.forEach((freq, index) => {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-
-                oscillator.frequency.setValueAtTime(freq, currentTime);
-
-                gainNode.gain.setValueAtTime(0, currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.06, currentTime + 0.08);
-                gainNode.gain.exponentialRampToValueAtTime(0.005, currentTime + durations[index]);
-
-                oscillator.type = 'sine';
-                oscillator.start(currentTime);
-                oscillator.stop(currentTime + durations[index]);
-
-                currentTime += durations[index];
-            });
-        }
-
-        // 停止所有音效
-        function stopAllSounds() {
-            if (audioContext.state === 'running') {
-                audioContext.suspend();
-                setTimeout(() => {
-                    audioContext.resume();
-                }, 100);
+        function shuffleArray(arr) {
+            for (var i = arr.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
             }
+            return arr;
         }
 
-        // 创建烟花特效
-        function createFirework(x, y) {
-            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43'];
-            const particleCount = 30;
+        var difficultyBtns = document.querySelectorAll('.difficulty-btn');
+        var modeBtns = document.querySelectorAll('.mode-btn');
 
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('firework');
-
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                particle.style.backgroundColor = color;
-                particle.style.boxShadow = `0 0 6px ${color}`;
-                particle.style.left = x + 'px';
-                particle.style.top = y + 'px';
-
-                const angle = (Math.PI * 2 * i) / particleCount;
-                const velocity = 80 + Math.random() * 60;
-                const tx = Math.cos(angle) * velocity;
-                const ty = Math.sin(angle) * velocity;
-
-                particle.style.animation = `fireworkExplode 1s ease-out forwards`;
-                particle.style.transform = `translate(${tx}px, ${ty}px) scale(0)`;
-
-                document.body.appendChild(particle);
-
-                setTimeout(() => {
-                    particle.remove();
-                }, 1000);
-            }
-        }
-
-        // 创建多个烟花
-        function createFireworks() {
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-
-            // 在屏幕不同位置创建3个烟花
-            setTimeout(() => createFirework(centerX - 200, centerY - 100), 0);
-            setTimeout(() => createFirework(centerX, centerY - 150), 200);
-            setTimeout(() => createFirework(centerX + 200, centerY - 100), 400);
-        }
-
-        // ==================== 难度和模式按钮事件（含激活检查） ====================
-        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
-        const modeBtns = document.querySelectorAll('.mode-btn');
-
-        difficultyBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const size = btn.dataset.size;
-
-                // 检查是否有权限
-                if (!isActivated && ['7', '8', '9'].includes(size)) {
+        difficultyBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var size = btn.dataset.size;
+                if (!isActivated && ['7','8','9'].indexOf(size) !== -1) {
                     showActivationModal();
                     return;
                 }
-
-                difficultyBtns.forEach(b => b.classList.remove('selected'));
+                difficultyBtns.forEach(function(b) { b.classList.remove('selected'); });
                 btn.classList.add('selected');
                 gridSize = parseInt(size);
                 maxNumber = gridSize * gridSize;
@@ -1419,17 +1243,14 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
             });
         });
 
-        modeBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const mode = btn.dataset.mode;
-
-                // 多人模式需要激活
+        modeBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var mode = btn.dataset.mode;
                 if (!isActivated && mode === 'multi') {
                     showActivationModal();
                     return;
                 }
-
-                modeBtns.forEach(b => b.classList.remove('selected'));
+                modeBtns.forEach(function(b) { b.classList.remove('selected'); });
                 btn.classList.add('selected');
                 currentMode = mode;
             });
@@ -1438,22 +1259,18 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
         function startGameWithDifficulty() {
             difficultySelection.style.display = 'none';
             gameArea.style.display = 'block';
-            gameInfo.textContent = `按1到${maxNumber}的顺序依次点击数字`;
-
-            // 根据当前模式显示不同的游戏界面
-            const singlePlayer = document.getElementById('singlePlayer');
-            const multiplayerContainer = document.getElementById('multiplayerContainer');
-            const body = document.body;
-
+            gameInfo.textContent = '按1到' + maxNumber + '的顺序依次点击数字';
+            var sp = document.getElementById('singlePlayer');
+            var mc = document.getElementById('multiplayerContainer');
             if (currentMode === 'single') {
-                singlePlayer.style.display = 'block';
-                multiplayerContainer.style.display = 'none';
-                body.classList.remove('multiplayer');
+                sp.style.display = 'block';
+                mc.style.display = 'none';
+                document.body.classList.remove('multiplayer');
                 restartGame();
             } else {
-                singlePlayer.style.display = 'none';
-                multiplayerContainer.style.display = 'flex';
-                body.classList.add('multiplayer');
+                sp.style.display = 'none';
+                mc.style.display = 'flex';
+                document.body.classList.add('multiplayer');
                 restartMultiplayerGame();
             }
         }
@@ -1463,77 +1280,44 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
             gameArea.style.display = 'none';
             clearInterval(timerInterval);
             gameStarted = false;
-
-            // 清除多人模式类
             document.body.classList.remove('multiplayer');
-
-            // 清除多人模式下所有玩家的计时器
-            players.forEach(player => {
-                clearInterval(player.timerInterval);
-                player.gameStarted = false;
-            });
-
+            players.forEach(function(p) { clearInterval(p.timerInterval); p.gameStarted = false; });
             clearConfetti();
             clearFireworks();
             stopAllSounds();
         }
 
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
         function createGrid() {
             grid.innerHTML = '';
-            numbers = shuffleArray([...Array(maxNumber)].map((_, i) => i + 1));
-
-            grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-
-            const cardSize = Math.max(50, Math.min(80, 400 / gridSize));
-            const fontSize = Math.max(1.2, Math.min(2, 2.5 - gridSize * 0.1));
-
-            numbers.forEach(num => {
-                const card = document.createElement('div');
+            numbers = shuffleArray(Array.from({length: maxNumber}, function(_, i) { return i + 1; }));
+            grid.style.gridTemplateColumns = 'repeat(' + gridSize + ', 1fr)';
+            var cardSize = Math.max(50, Math.min(80, 400 / gridSize));
+            var fontSize = Math.max(1.2, Math.min(2, 2.5 - gridSize * 0.1));
+            numbers.forEach(function(num) {
+                var card = document.createElement('div');
                 card.className = 'card';
                 card.textContent = num;
                 card.dataset.number = num;
-                card.style.width = `${cardSize}px`;
-                card.style.height = `${cardSize}px`;
-                card.style.fontSize = `${fontSize}rem`;
+                card.style.width = cardSize + 'px';
+                card.style.height = cardSize + 'px';
+                card.style.fontSize = fontSize + 'rem';
                 card.addEventListener('click', handleCardClick);
                 grid.appendChild(card);
             });
         }
 
         function handleCardClick(e) {
-            const card = e.target;
-            const clickedNumber = parseInt(card.dataset.number);
-
-            if (clickedNumber === currentNumber) {
-                if (!gameStarted && currentNumber === 1) {
-                    startGame();
-                }
-
-                card.classList.add('clicked');
-                card.classList.add('correct');
+            var card = e.target;
+            var num = parseInt(card.dataset.number);
+            if (num === currentNumber) {
+                if (!gameStarted && currentNumber === 1) startGame();
+                card.classList.add('clicked','correct');
                 currentNumber++;
-
-                // 播放正确点击音效（不影响下一次点击）
-                setTimeout(() => {
-                    playCorrectSound();
-                }, 0);
-
-                if (currentNumber > maxNumber) {
-                    endGame();
-                }
+                setTimeout(function() { playCorrectSound(); }, 0);
+                if (currentNumber > maxNumber) endGame();
             } else if (gameStarted) {
                 card.classList.add('wrong');
-                setTimeout(() => {
-                    card.classList.remove('wrong');
-                }, 500);
+                setTimeout(function() { card.classList.remove('wrong'); }, 500);
             }
         }
 
@@ -1545,114 +1329,70 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
         }
 
         function updateTimer() {
-            const elapsed = Date.now() - startTime;
-            const minutes = Math.floor(elapsed / 60000);
-            const seconds = Math.floor((elapsed % 60000) / 1000);
-            const milliseconds = elapsed % 1000;
-
+            var elapsed = Date.now() - startTime;
             timerDisplay.textContent =
-                String(minutes).padStart(2, '0') + ':' +
-                String(seconds).padStart(2, '0') + '.' +
-                String(milliseconds).padStart(3, '0');
+                String(Math.floor(elapsed/60000)).padStart(2,'0') + ':' +
+                String(Math.floor((elapsed%60000)/1000)).padStart(2,'0') + '.' +
+                String(elapsed%1000).padStart(3,'0');
         }
 
         function createConfetti() {
-            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722'];
-
-            for (let i = 0; i < 100; i++) {
-                const confetti = document.createElement('div');
-                confetti.classList.add('confetti');
-                confetti.style.width = `${Math.random() * 10 + 5}px`;
-                confetti.style.height = `${Math.random() * 10 + 5}px`;
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.left = `${Math.random() * 100}vw`;
-                confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
-                confetti.style.animationDelay = `${Math.random() * 2}s`;
-
-                document.body.appendChild(confetti);
-
-                setTimeout(() => {
-                    confetti.remove();
-                }, 5000);
+            var colors = ['#f44336','#e91e63','#9c27b0','#673ab7','#3f51b5','#2196f3','#03a9f4','#00bcd4','#009688','#4caf50','#8bc34a','#cddc39','#ffeb3b','#ffc107','#ff9800','#ff5722'];
+            for (var i = 0; i < 100; i++) {
+                var c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.width = (Math.random()*10+5) + 'px';
+                c.style.height = (Math.random()*10+5) + 'px';
+                c.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                c.style.left = (Math.random()*100) + 'vw';
+                c.style.animationDuration = (Math.random()*3+2) + 's';
+                c.style.animationDelay = (Math.random()*2) + 's';
+                document.body.appendChild(c);
+                setTimeout(function() { c.remove(); }, 5000);
             }
         }
 
         function endGame() {
             clearInterval(timerInterval);
             gameStarted = false;
-            const elapsed = Date.now() - startTime;
-            const minutes = Math.floor(elapsed / 60000);
-            const seconds = Math.floor((elapsed % 60000) / 1000);
-            const milliseconds = elapsed % 1000;
+            var elapsed = Date.now() - startTime;
+            var timeString =
+                String(Math.floor(elapsed/60000)).padStart(2,'0') + ':' +
+                String(Math.floor((elapsed%60000)/1000)).padStart(2,'0') + '.' +
+                String(elapsed%1000).padStart(3,'0');
 
-            const timeString =
-                String(minutes).padStart(2, '0') + ':' +
-                String(seconds).padStart(2, '0') + '.' +
-                String(milliseconds).padStart(3, '0');
-
-            const modal = document.getElementById('modal');
-            const currentTimeEl = document.getElementById('currentTime');
-            const bestTimeEl = document.getElementById('bestTime');
-            const recordMessageEl = document.getElementById('recordMessage');
-
-            // 更新当前用时显示
-            currentTimeEl.textContent = timeString;
-
-            // 更新最佳成绩
-            const difficultyKey = `${gridSize}x${gridSize}`;
-            let isNewRecord = false;
-
-            if (!bestTimes[difficultyKey] || elapsed < bestTimes[difficultyKey]) {
-                bestTimes[difficultyKey] = elapsed;
+            document.getElementById('currentTime').textContent = timeString;
+            var key = gridSize + 'x' + gridSize;
+            var isNewRecord = false;
+            if (!bestTimes[key] || elapsed < bestTimes[key]) {
+                bestTimes[key] = elapsed;
                 isNewRecord = true;
                 saveBestTimes();
             }
+            var best = bestTimes[key];
+            document.getElementById('bestTime').textContent =
+                String(Math.floor(best/60000)).padStart(2,'0') + ':' +
+                String(Math.floor((best%60000)/1000)).padStart(2,'0') + '.' +
+                String(best%1000).padStart(3,'0');
 
-            const bestElapsed = bestTimes[difficultyKey];
-            const bestMinutes = Math.floor(bestElapsed / 60000);
-            const bestSeconds = Math.floor((bestElapsed % 60000) / 1000);
-            const bestMilliseconds = bestElapsed % 1000;
-            const bestTimeString =
-                String(bestMinutes).padStart(2, '0') + ':' +
-                String(bestSeconds).padStart(2, '0') + '.' +
-                String(bestMilliseconds).padStart(3, '0');
-
-            bestTimeEl.textContent = bestTimeString;
-
-            // 显示破纪录提示
             if (isNewRecord) {
-                recordMessageEl.textContent = '🎉 破纪录啦！🎉';
-                recordMessageEl.style.display = 'block';
-                // 破纪录时播放烟花特效
-                setTimeout(() => {
-                    createFireworks();
-                }, 300);
+                document.getElementById('recordMessage').textContent = '🎉 破纪录啦！🎉';
+                document.getElementById('recordMessage').style.display = 'block';
+                setTimeout(function() { createFireworks(); }, 300);
             } else {
-                recordMessageEl.style.display = 'none';
+                document.getElementById('recordMessage').style.display = 'none';
             }
-
-            modal.style.display = 'block';
-
-            // 播放胜利音效
-            setTimeout(() => {
-                playVictorySound();
-            }, 100);
-
+            document.getElementById('modal').style.display = 'block';
+            setTimeout(function() { playVictorySound(); }, 100);
             createConfetti();
         }
 
         function clearConfetti() {
-            const confettiElements = document.querySelectorAll('.confetti');
-            confettiElements.forEach(confetti => {
-                confetti.remove();
-            });
+            document.querySelectorAll('.confetti').forEach(function(c) { c.remove(); });
         }
 
         function clearFireworks() {
-            const fireworkElements = document.querySelectorAll('.firework');
-            fireworkElements.forEach(firework => {
-                firework.remove();
-            });
+            document.querySelectorAll('.firework').forEach(function(f) { f.remove(); });
         }
 
         function restartGame() {
@@ -1668,18 +1408,16 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
             createGrid();
         }
 
-        // 多人模式相关函数
+        // 多人模式
         function restartMultiplayerGame() {
-            // 重置所有玩家的游戏状态
-            players.forEach(player => {
-                clearInterval(player.timerInterval);
-                player.gameStarted = false;
-                player.currentNumber = 1;
-                player.startTime = null;
-                player.timer.textContent = '00:00.000';
-                createPlayerGrid(player);
+            players.forEach(function(p) {
+                clearInterval(p.timerInterval);
+                p.gameStarted = false;
+                p.currentNumber = 1;
+                p.startTime = null;
+                p.timer.textContent = '00:00.000';
+                createPlayerGrid(p);
             });
-
             clearConfetti();
             clearFireworks();
             stopAllSounds();
@@ -1687,12 +1425,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 
         function createPlayerGrid(player) {
             player.grid.innerHTML = '';
-            player.numbers = shuffleArray([...Array(maxNumber)].map((_, i) => i + 1));
-
-            player.grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-
-            // 最难难度（9x9）使用原来的大小设置
-            let cardSize, fontSize;
+            player.numbers = shuffleArray(Array.from({length: maxNumber}, function(_, i) { return i + 1; }));
+            player.grid.style.gridTemplateColumns = 'repeat(' + gridSize + ', 1fr)';
+            var cardSize, fontSize;
             if (gridSize === 9) {
                 cardSize = Math.max(40, Math.min(70, 300 / gridSize));
                 fontSize = Math.max(1, Math.min(1.8, 2.2 - gridSize * 0.1));
@@ -1700,100 +1435,79 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
                 cardSize = Math.max(50, Math.min(80, 350 / gridSize));
                 fontSize = Math.max(1.2, Math.min(2, 2.5 - gridSize * 0.1));
             }
-
-            player.numbers.forEach(num => {
-                const card = document.createElement('div');
+            player.numbers.forEach(function(num) {
+                var card = document.createElement('div');
                 card.className = 'card';
                 card.textContent = num;
                 card.dataset.number = num;
-                card.style.width = `${cardSize}px`;
-                card.style.height = `${cardSize}px`;
-                card.style.fontSize = `${fontSize}rem`;
-                card.addEventListener('click', (e) => handlePlayerCardClick(e, player));
+                card.style.width = cardSize + 'px';
+                card.style.height = cardSize + 'px';
+                card.style.fontSize = fontSize + 'rem';
+                card.addEventListener('click', function(e) { handlePlayerCardClick(e, player); });
                 player.grid.appendChild(card);
             });
         }
 
         function handlePlayerCardClick(e, player) {
-            const card = e.target;
-            const clickedNumber = parseInt(card.dataset.number);
-
-            if (clickedNumber === player.currentNumber) {
-                if (!player.gameStarted && player.currentNumber === 1) {
-                    startPlayerGame(player);
-                }
-
-                card.classList.add('clicked');
-                card.classList.add('correct');
+            var card = e.target;
+            var num = parseInt(card.dataset.number);
+            if (num === player.currentNumber) {
+                if (!player.gameStarted && player.currentNumber === 1) startPlayerGame(player);
+                card.classList.add('clicked','correct');
                 player.currentNumber++;
-
-                // 播放正确点击音效
-                setTimeout(() => {
-                    playCorrectSound();
-                }, 0);
-
-                if (player.currentNumber > maxNumber) {
-                    endPlayerGame(player);
-                }
+                setTimeout(function() { playCorrectSound(); }, 0);
+                if (player.currentNumber > maxNumber) endPlayerGame(player);
             } else if (player.gameStarted) {
                 card.classList.add('wrong');
-                setTimeout(() => {
-                    card.classList.remove('wrong');
-                }, 500);
+                setTimeout(function() { card.classList.remove('wrong'); }, 500);
             }
         }
 
         function startPlayerGame(player) {
             player.gameStarted = true;
             player.startTime = Date.now();
-            player.timerInterval = setInterval(() => updatePlayerTimer(player), 10);
+            player.timerInterval = setInterval(function() { updatePlayerTimer(player); }, 10);
         }
 
         function updatePlayerTimer(player) {
-            const elapsed = Date.now() - player.startTime;
-            const minutes = Math.floor(elapsed / 60000);
-            const seconds = Math.floor((elapsed % 60000) / 1000);
-            const milliseconds = elapsed % 1000;
-
+            var elapsed = Date.now() - player.startTime;
             player.timer.textContent =
-                String(minutes).padStart(2, '0') + ':' +
-                String(seconds).padStart(2, '0') + '.' +
-                String(milliseconds).padStart(3, '0');
+                String(Math.floor(elapsed/60000)).padStart(2,'0') + ':' +
+                String(Math.floor((elapsed%60000)/1000)).padStart(2,'0') + '.' +
+                String(elapsed%1000).padStart(3,'0');
         }
 
         function endPlayerGame(player) {
             clearInterval(player.timerInterval);
             player.gameStarted = false;
-
-            // 播放胜利音效
-            setTimeout(() => {
-                playVictorySound();
-            }, 100);
+            setTimeout(function() { playVictorySound(); }, 100);
         }
 
-        // ==================== 事件绑定 ====================
+        // ============================================================
+        //  事件绑定
+        // ============================================================
         restartBtn.addEventListener('click', restartGame);
         changeDifficultyBtn.addEventListener('click', showDifficultySelection);
         document.getElementById('playAgainBtn').addEventListener('click', restartGame);
-        document.getElementById('changeDifficultyModalBtn').addEventListener('click', () => {
+        document.getElementById('changeDifficultyModalBtn').addEventListener('click', function() {
             document.getElementById('modal').style.display = 'none';
             showDifficultySelection();
         });
         document.getElementById('multiplayerChangeDifficultyBtn').addEventListener('click', showDifficultySelection);
-
-        // 为多人模式的重新开始按钮添加事件监听器
-        players.forEach(player => {
-            player.restartBtn.addEventListener('click', () => {
-                clearInterval(player.timerInterval);
-                player.gameStarted = false;
-                player.currentNumber = 1;
-                player.startTime = null;
-                player.timer.textContent = '00:00.000';
-                createPlayerGrid(player);
+        players.forEach(function(p) {
+            p.restartBtn.addEventListener('click', function() {
+                clearInterval(p.timerInterval);
+                p.gameStarted = false;
+                p.currentNumber = 1;
+                p.startTime = null;
+                p.timer.textContent = '00:00.000';
+                createPlayerGrid(p);
             });
         });
 
-        // ==================== 页面初始化 ====================
+        // ============================================================
+        //  启动
+        // ============================================================
         loadBestTimes();
         checkActivationStatus();
     </script>
