@@ -7,6 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>舒尔特方格 - 注意力训练</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236a5acd'/><rect x='8' y='8' width='38' height='38' rx='8' fill='white'/><rect x='54' y='8' width='38' height='38' rx='8' fill='white'/><rect x='8' y='54' width='38' height='38' rx='8' fill='white'/><rect x='54' y='54' width='38' height='38' rx='8' fill='white'/><text x='27' y='35' text-anchor='middle' font-size='22' font-weight='bold' fill='%236a5acd'>1</text><text x='73' y='35' text-anchor='middle' font-size='22' font-weight='bold' fill='%236a5acd'>2</text><text x='27' y='81' text-anchor='middle' font-size='22' font-weight='bold' fill='%236a5acd'>3</text><text x='73' y='81' text-anchor='middle' font-size='22' font-weight='bold' fill='white'>4</text></svg>">
 
     <!-- Supabase REST API 直连，无需第三方 SDK -->
 
@@ -1024,16 +1025,13 @@
                 'Accept': 'application/json'
             };
 
-            // 查询激活码（PostgREST 格式）
+            // 查询激活码
             var queryUrl = apiUrl + '?select=*&code=eq.' + encodeURIComponent(code);
-            console.log('🔍 查询激活码:', queryUrl);
 
             fetch(queryUrl, { headers: headers })
                 .then(function(res) {
-                    console.log('📡 查询响应状态:', res.status);
                     if (!res.ok) {
                         return res.text().then(function(body) {
-                            console.error('❌ 查询失败:', res.status, body);
                             var msg = '查询失败(HTTP ' + res.status + ')';
                             if (res.status === 401) msg = '权限不足，请检查RLS策略';
                             if (res.status === 404) msg = '表不存在，请确认已建表';
@@ -1043,7 +1041,6 @@
                     return res.json();
                 })
                 .then(function(rows) {
-                    console.log('📋 查询结果:', rows);
                     if (!rows || rows.length === 0) {
                         activationError.textContent = '激活码无效，请检查后重试';
                         activationSubmitBtn.disabled = false;
@@ -1052,44 +1049,53 @@
                     }
 
                     var row = rows[0];
-                    console.log('✅ 找到激活码, is_used=' + row.is_used);
+                    var used = row.use_count || 0;
+                    var maxUse = 2;
 
-                    if (row.is_used) {
-                        activationError.textContent = '该激活码已被使用，每个激活码仅限一人使用';
+                    // 已达到使用上限
+                    if (used >= maxUse) {
+                        activationError.textContent = '该激活码已绑定 ' + maxUse + ' 台设备，无法继续使用';
                         activationSubmitBtn.disabled = false;
                         activationSubmitBtn.textContent = '确认激活';
                         return Promise.reject(null);
                     }
 
-                    // 标记为已使用
+                    // 激活码可用 → 次数 +1
+                    var newCount = used + 1;
+                    var body = {
+                        use_count: newCount,
+                        used_at: new Date().toISOString()
+                    };
+                    if (newCount >= maxUse) {
+                        body.is_used = true;
+                    }
+
                     headers['Content-Type'] = 'application/json';
                     headers['Prefer'] = 'return=minimal';
                     return fetch(apiUrl + '?code=eq.' + encodeURIComponent(code), {
                         method: 'PATCH',
                         headers: headers,
-                        body: JSON.stringify({ is_used: true, used_at: new Date().toISOString() })
+                        body: JSON.stringify(body)
                     });
                 })
                 .then(function(res) {
                     if (!res || !res.ok) {
                         if (res) {
                             return res.text().then(function(body) {
-                                console.error('❌ 更新失败:', res.status, body);
                                 throw new Error('更新失败(HTTP ' + res.status + '): ' + body);
                             });
                         }
                         return;
                     }
-                    console.log('🎉 激活成功');
                     localStorage.setItem('schulte_activated', 'true');
                     isActivated = true;
                     unlockAllFeatures();
                     hideActivationModal();
-                    showToast('✅ 激活成功！全部功能已解锁', 'success', 2000);
+                    showToast('✅ 激活成功！全部功能已解锁（已绑定 1 台设备）', 'success', 2500);
                 })
                 .catch(function(e) {
                     if (e === null) return;
-                    console.error('❌ 激活错误:', e);
+                    console.error('Activation error:', e);
                     activationError.textContent = '错误: ' + (e.message || '未知错误');
                     activationSubmitBtn.disabled = false;
                     activationSubmitBtn.textContent = '确认激活';
