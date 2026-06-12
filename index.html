@@ -1017,7 +1017,8 @@
             var apiUrl = SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLE;
             var headers = {
                 'apikey': SUPABASE_ANON_KEY,
-                'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+                'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                'Accept': 'application/json'
             };
 
             // 查询激活码（PostgREST 格式）
