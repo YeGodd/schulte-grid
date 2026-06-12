@@ -1014,31 +1014,42 @@
             activationSubmitBtn.textContent = '验证中...';
             activationError.textContent = '';
 
-            // 使用 Supabase REST API 直接调用（不依赖 JS SDK）
             var apiUrl = SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLE;
             var headers = {
                 'apikey': SUPABASE_ANON_KEY,
                 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
             };
 
-            // 第一步：查询激活码
-            fetch(apiUrl + '?code=eq.' + encodeURIComponent(code) + '&select=*', { headers: headers })
+            // 查询激活码（PostgREST 格式）
+            var queryUrl = apiUrl + '?select=*&code=eq.' + encodeURIComponent(code);
+            console.log('🔍 查询激活码:', queryUrl);
+
+            fetch(queryUrl, { headers: headers })
                 .then(function(res) {
-                    if (!res.ok) throw new Error('查询失败: ' + res.status);
+                    console.log('📡 查询响应状态:', res.status);
+                    if (!res.ok) {
+                        return res.text().then(function(body) {
+                            console.error('❌ 查询失败:', res.status, body);
+                            var msg = '查询失败(HTTP ' + res.status + ')';
+                            if (res.status === 401) msg = '权限不足，请检查RLS策略';
+                            if (res.status === 404) msg = '表不存在，请确认已建表';
+                            throw new Error(msg);
+                        });
+                    }
                     return res.json();
                 })
                 .then(function(rows) {
-                    // 没找到
+                    console.log('📋 查询结果:', rows);
                     if (!rows || rows.length === 0) {
                         activationError.textContent = '激活码无效，请检查后重试';
                         activationSubmitBtn.disabled = false;
                         activationSubmitBtn.textContent = '确认激活';
-                        return Promise.reject(null);  // 不是真正的错误，直接结束
+                        return Promise.reject(null);
                     }
 
                     var row = rows[0];
+                    console.log('✅ 找到激活码, is_used=' + row.is_used);
 
-                    // 已被使用
                     if (row.is_used) {
                         activationError.textContent = '该激活码已被使用，每个激活码仅限一人使用';
                         activationSubmitBtn.disabled = false;
@@ -1046,7 +1057,7 @@
                         return Promise.reject(null);
                     }
 
-                    // 第二步：标记为已使用
+                    // 标记为已使用
                     headers['Content-Type'] = 'application/json';
                     headers['Prefer'] = 'return=minimal';
                     return fetch(apiUrl + '?code=eq.' + encodeURIComponent(code), {
@@ -1057,10 +1068,15 @@
                 })
                 .then(function(res) {
                     if (!res || !res.ok) {
-                        if (res) throw new Error('更新失败: ' + res.status);
+                        if (res) {
+                            return res.text().then(function(body) {
+                                console.error('❌ 更新失败:', res.status, body);
+                                throw new Error('更新失败(HTTP ' + res.status + '): ' + body);
+                            });
+                        }
                         return;
                     }
-                    // 成功
+                    console.log('🎉 激活成功');
                     localStorage.setItem('schulte_activated', 'true');
                     isActivated = true;
                     unlockAllFeatures();
@@ -1068,9 +1084,9 @@
                     showToast('✅ 激活成功！全部功能已解锁', 'success', 2000);
                 })
                 .catch(function(e) {
-                    if (e === null) return;  // 已处理的业务错误，不显示
-                    console.error('Activation error:', e);
-                    activationError.textContent = '网络错误，请稍后重试';
+                    if (e === null) return;
+                    console.error('❌ 激活错误:', e);
+                    activationError.textContent = '错误: ' + (e.message || '未知错误');
                     activationSubmitBtn.disabled = false;
                     activationSubmitBtn.textContent = '确认激活';
                 });
