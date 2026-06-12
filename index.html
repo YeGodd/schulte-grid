@@ -5,21 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>舒尔特方格 - 注意力训练</title>
 
-    <!-- Supabase SDK（异步加载，不阻塞页面） -->
-    <script>
-        (function(){
-            var CDN1='https://unpkg.com/@supabase/supabase-js@2';
-            var CDN2='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-            var s=document.createElement('script');
-            s.onload=function(){window._supabaseReady=true;if(window._scb)window._scb();};
-            s.onerror=function(){
-                if(s.src===CDN1){s.src=CDN2;document.head.appendChild(s);}
-                else{window._supabaseReady=true;if(window._scb)window._scb();}
-            };
-            s.src=CDN1;
-            document.head.appendChild(s);
-        })();
-    </script>
+    <!-- Supabase REST API 直连，无需第三方 SDK -->
 
     <style>
         * {
@@ -856,26 +842,10 @@
         // ============================================================
         //  Supabase 配置
         // ============================================================
+        // Supabase 配置（REST API 直连，无需 JS SDK）
         var SUPABASE_URL = 'https://wfpdjvzwkdefqyzoklqh.supabase.co';
         var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcGRqdnp3a2RlZnF5em9rbHFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDM4MzgsImV4cCI6MjA5NjQ3OTgzOH0.cUPMjo7HwqoieQO_wWjYnW_DJ9Q1v_ifR25FjUj-TPE';
         var SUPABASE_TABLE = 'schulte_codes';
-
-        // Supabase 初始化（等 CDN 异步加载完再初始化）
-        var supabase = null;
-        function initSupabase() {
-            if (typeof window.supabase !== 'undefined') {
-                try {
-                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                } catch (e) {
-                    console.warn('Supabase init error:', e);
-                }
-            }
-        }
-        if (window._supabaseReady) {
-            initSupabase();
-        } else {
-            window._scb = initSupabase;
-        }
 
         // ============================================================
         //  DOM 引用
@@ -1044,53 +1014,63 @@
             activationSubmitBtn.textContent = '验证中...';
             activationError.textContent = '';
 
-            if (!supabase) {
-                activationError.textContent = '网络连接中，请稍后重试（CDN加载中）';
-                activationSubmitBtn.disabled = false;
-                activationSubmitBtn.textContent = '确认激活';
-                return;
-            }
+            // 使用 Supabase REST API 直接调用（不依赖 JS SDK）
+            var apiUrl = SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLE;
+            var headers = {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+            };
 
-            supabase.from(SUPABASE_TABLE).select('*').eq('code', code).single()
-                .then(function(result) {
-                    var data = result.data;
-                    var error = result.error;
-
-                    if (error && error.code !== 'PGRST116') throw error;
-
-                    if (!data) {
+            // 第一步：查询激活码
+            fetch(apiUrl + '?code=eq.' + encodeURIComponent(code) + '&select=*', { headers: headers })
+                .then(function(res) {
+                    if (!res.ok) throw new Error('查询失败: ' + res.status);
+                    return res.json();
+                })
+                .then(function(rows) {
+                    // 没找到
+                    if (!rows || rows.length === 0) {
                         activationError.textContent = '激活码无效，请检查后重试';
                         activationSubmitBtn.disabled = false;
                         activationSubmitBtn.textContent = '确认激活';
-                        return;
+                        return Promise.reject(null);  // 不是真正的错误，直接结束
                     }
 
-                    if (data.is_used) {
+                    var row = rows[0];
+
+                    // 已被使用
+                    if (row.is_used) {
                         activationError.textContent = '该激活码已被使用，每个激活码仅限一人使用';
                         activationSubmitBtn.disabled = false;
                         activationSubmitBtn.textContent = '确认激活';
-                        return;
+                        return Promise.reject(null);
                     }
 
-                    return supabase.from(SUPABASE_TABLE)
-                        .update({ is_used: true, used_at: new Date().toISOString() })
-                        .eq('code', code)
-                        .then(function(updateResult) {
-                            if (updateResult.error) throw updateResult.error;
-                            localStorage.setItem('schulte_activated', 'true');
-                            isActivated = true;
-                            unlockAllFeatures();
-                            hideActivationModal();
-                            showToast('✅ 激活成功！全部功能已解锁', 'success', 2000);
-                        });
+                    // 第二步：标记为已使用
+                    headers['Content-Type'] = 'application/json';
+                    headers['Prefer'] = 'return=minimal';
+                    return fetch(apiUrl + '?code=eq.' + encodeURIComponent(code), {
+                        method: 'PATCH',
+                        headers: headers,
+                        body: JSON.stringify({ is_used: true, used_at: new Date().toISOString() })
+                    });
+                })
+                .then(function(res) {
+                    if (!res || !res.ok) {
+                        if (res) throw new Error('更新失败: ' + res.status);
+                        return;
+                    }
+                    // 成功
+                    localStorage.setItem('schulte_activated', 'true');
+                    isActivated = true;
+                    unlockAllFeatures();
+                    hideActivationModal();
+                    showToast('✅ 激活成功！全部功能已解锁', 'success', 2000);
                 })
                 .catch(function(e) {
+                    if (e === null) return;  // 已处理的业务错误，不显示
                     console.error('Activation error:', e);
-                    if (e.message && e.message.indexOf('fetch') !== -1) {
-                        activationError.textContent = '网络错误，请稍后重试';
-                    } else {
-                        activationError.textContent = '验证失败，请稍后重试';
-                    }
+                    activationError.textContent = '网络错误，请稍后重试';
                     activationSubmitBtn.disabled = false;
                     activationSubmitBtn.textContent = '确认激活';
                 });
