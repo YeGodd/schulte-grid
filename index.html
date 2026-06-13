@@ -1517,6 +1517,11 @@
         // ============================================================
         //  启动
         // ============================================================
+        // 支持 ?reset 参数清除激活状态
+        if (location.search.indexOf('reset') !== -1) {
+            localStorage.removeItem('schulte_activated');
+            location.href = location.pathname;
+        }
         loadBestTimes();
         checkActivationStatus();
     </script>
