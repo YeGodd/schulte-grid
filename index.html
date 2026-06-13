@@ -966,11 +966,22 @@
                     </div>
                 </div>
                 <div class="payment-instruction">
-                    付款后关注公众号<br>
-                    <span class="highlight">「7与心理课」</span><br>
-                    发送<b>付款截图</b>领取激活码
+                    付款后填写邮箱，激活码自动发送<br>
+                    或关注公众号 <span class="highlight">「7与心理课」</span> 发送截图领取
                 </div>
-                <button class="payment-close-btn" id="paymentCloseBtn">关闭</button>
+                <input
+                    type="email"
+                    class="activation-input"
+                    id="paymentEmailInput"
+                    placeholder="请输入您的邮箱"
+                    autocomplete="email"
+                    style="margin-bottom:10px;"
+                >
+                <div class="activation-error" id="paymentEmailError"></div>
+                <div style="display:flex;gap:10px;justify-content:center;margin-top:5px;">
+                    <button class="activation-btn-secondary" id="paymentCloseBtn">关闭</button>
+                    <button class="activation-btn-primary" id="paymentSendBtn">我已付款，发送激活码</button>
+                </div>
             </div>
         </div>
 
@@ -1010,6 +1021,9 @@
         var resetBtn = document.getElementById('resetBtn');
         var paymentModal = document.getElementById('paymentModal');
         var paymentCloseBtn = document.getElementById('paymentCloseBtn');
+        var paymentEmailInput = document.getElementById('paymentEmailInput');
+        var paymentEmailError = document.getElementById('paymentEmailError');
+        var paymentSendBtn = document.getElementById('paymentSendBtn');
         var toast = document.getElementById('toast');
 
         // ============================================================
@@ -1272,12 +1286,58 @@
         });
 
         // 购买按钮 → 弹出付款弹窗
+        var EDGE_FN = SUPABASE_URL + '/functions/v1/send-code';
+
         function showPaymentModal() {
             paymentModal.style.display = 'block';
+            paymentEmailInput.value = '';
+            paymentEmailError.textContent = '';
+            paymentSendBtn.disabled = false;
+            paymentSendBtn.textContent = '我已付款，发送激活码';
         }
 
         function hidePaymentModal() {
             paymentModal.style.display = 'none';
+            paymentEmailInput.value = '';
+            paymentEmailError.textContent = '';
+        }
+
+        function sendActivationEmail() {
+            var email = paymentEmailInput.value.trim();
+            if (!email) { paymentEmailError.textContent = '请填写邮箱地址'; return; }
+            if (email.indexOf('@') === -1) { paymentEmailError.textContent = '邮箱格式不正确'; return; }
+
+            paymentSendBtn.disabled = true;
+            paymentSendBtn.textContent = '发送中...';
+            paymentEmailError.textContent = '';
+
+            fetch(EDGE_FN, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.success) {
+                    paymentEmailError.style.color = '#2ecc71';
+                    paymentEmailError.textContent = result.message;
+                    paymentSendBtn.textContent = '✅ 已发送';
+                } else {
+                    paymentEmailError.style.color = '#e74c3c';
+                    paymentEmailError.textContent = result.message;
+                    paymentSendBtn.disabled = false;
+                    paymentSendBtn.textContent = '我已付款，发送激活码';
+                }
+            })
+            .catch(function() {
+                paymentEmailError.style.color = '#e74c3c';
+                paymentEmailError.textContent = '网络错误，请稍后重试';
+                paymentSendBtn.disabled = false;
+                paymentSendBtn.textContent = '我已付款，发送激活码';
+            });
         }
 
         purchaseBtn.addEventListener('click', showPaymentModal);
@@ -1288,6 +1348,12 @@
         });
 
         paymentCloseBtn.addEventListener('click', hidePaymentModal);
+
+        paymentSendBtn.addEventListener('click', sendActivationEmail);
+
+        paymentEmailInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') sendActivationEmail();
+        });
 
         paymentModal.addEventListener('click', function(e) {
             if (e.target === paymentModal) hidePaymentModal();
