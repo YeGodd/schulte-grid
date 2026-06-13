@@ -583,6 +583,113 @@
             text-decoration: underline;
         }
 
+        /* ==================== 付款弹窗 ==================== */
+        .payment-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .payment-modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s;
+        }
+
+        .payment-title {
+            font-size: 1.6rem;
+            color: #6a5acd;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .payment-price {
+            font-size: 1.8rem;
+            color: #ff6b6b;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .payment-qr-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .payment-qr-item {
+            text-align: center;
+        }
+
+        .payment-qr-item img {
+            width: 160px;
+            height: 160px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            object-fit: contain;
+        }
+
+        .payment-qr-label {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        .payment-instruction {
+            font-size: 0.95rem;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.7;
+            background: #fff8e1;
+            padding: 12px 16px;
+            border-radius: 10px;
+        }
+
+        .payment-instruction .highlight {
+            color: #6a5acd;
+            font-weight: bold;
+        }
+
+        .payment-close-btn {
+            padding: 10px 28px;
+            font-size: 1rem;
+            background-color: #6a5acd;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: '楷体', 'KaiTi', serif;
+        }
+
+        .payment-close-btn:hover {
+            background-color: #5a4ab8;
+        }
+
+        @media (max-width: 768px) {
+            .payment-qr-item img {
+                width: 130px;
+                height: 130px;
+            }
+            .payment-modal-content {
+                margin: 8% auto;
+                padding: 20px;
+            }
+        }
+
         /* Toast 提示 */
         .toast {
             position: fixed;
@@ -843,6 +950,30 @@
             </div>
         </div>
 
+        <!-- 付款弹窗 -->
+        <div class="payment-modal" id="paymentModal">
+            <div class="payment-modal-content">
+                <div class="payment-title">🔓 购买激活码</div>
+                <div class="payment-price">¥ 6.6</div>
+                <div class="payment-qr-row">
+                    <div class="payment-qr-item">
+                        <img src="wechat-pay.png" alt="微信支付">
+                        <div class="payment-qr-label">微信支付</div>
+                    </div>
+                    <div class="payment-qr-item">
+                        <img src="alipay.jpg" alt="支付宝">
+                        <div class="payment-qr-label">支付宝</div>
+                    </div>
+                </div>
+                <div class="payment-instruction">
+                    付款后关注公众号<br>
+                    <span class="highlight">「7与心理课」</span><br>
+                    发送<b>付款截图</b>领取激活码
+                </div>
+                <button class="payment-close-btn" id="paymentCloseBtn">关闭</button>
+            </div>
+        </div>
+
         <!-- Toast -->
         <div class="toast" id="toast" style="display: none;"></div>
     </div>
@@ -877,6 +1008,8 @@
         var purchaseBtn = document.getElementById('purchaseBtn');
         var resetCta = document.getElementById('resetCta');
         var resetBtn = document.getElementById('resetBtn');
+        var paymentModal = document.getElementById('paymentModal');
+        var paymentCloseBtn = document.getElementById('paymentCloseBtn');
         var toast = document.getElementById('toast');
 
         // ============================================================
@@ -1138,18 +1271,29 @@
             if (e.target === activationModal) hideActivationModal();
         });
 
-        // 购买链接（面包多）
-        var purchaseUrl = 'https://mbd.pub/o/bread/YZaTmJpsZQ==';
+        // 购买按钮 → 弹出付款弹窗
+        function showPaymentModal() {
+            paymentModal.style.display = 'block';
+        }
 
-        purchaseBtn.addEventListener('click', function() {
-            window.open(purchaseUrl, '_blank');
-        });
+        function hidePaymentModal() {
+            paymentModal.style.display = 'none';
+        }
+
+        purchaseBtn.addEventListener('click', showPaymentModal);
 
         activationPurchaseLink.addEventListener('click', function(e) {
             e.preventDefault();
-            window.open(purchaseUrl, '_blank');
+            showPaymentModal();
         });
 
+        paymentCloseBtn.addEventListener('click', hidePaymentModal);
+
+        paymentModal.addEventListener('click', function(e) {
+            if (e.target === paymentModal) hidePaymentModal();
+        });
+
+        // 退出激活状态
         resetBtn.addEventListener('click', function() {
             localStorage.removeItem('schulte_activated');
             location.reload();
