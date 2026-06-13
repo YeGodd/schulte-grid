@@ -744,6 +744,11 @@
                 <div class="purchase-cta-text">🔒 想解锁全部 6 档难度和 3 人同时挑战模式？</div>
                 <button class="purchase-cta-btn" id="purchaseBtn">6.6 元获取激活码 →</button>
             </div>
+
+            <!-- 已激活用户：退出测试用 -->
+            <div class="purchase-cta" id="resetCta" style="display:none;">
+                <button class="activation-btn-secondary" id="resetBtn" style="font-size:0.9rem;padding:8px 20px;">退出激活状态（测试用）</button>
+            </div>
         </div>
 
         <div class="game-area" id="gameArea">
@@ -870,6 +875,8 @@
         var activationPurchaseLink = document.getElementById('activationPurchaseLink');
         var purchaseCta = document.getElementById('purchaseCta');
         var purchaseBtn = document.getElementById('purchaseBtn');
+        var resetCta = document.getElementById('resetCta');
+        var resetBtn = document.getElementById('resetBtn');
         var toast = document.getElementById('toast');
 
         // ============================================================
@@ -950,6 +957,7 @@
                 if (icon) icon.remove();
             }
             if (purchaseCta) purchaseCta.style.display = 'none';
+            if (resetCta) resetCta.style.display = 'block';
             isActivated = true;
         }
 
@@ -984,6 +992,7 @@
                 if (singleBtn) singleBtn.classList.add('selected');
             }
             if (purchaseCta) purchaseCta.style.display = 'block';
+            if (resetCta) resetCta.style.display = 'none';
             isActivated = false;
         }
 
@@ -1139,6 +1148,11 @@
         activationPurchaseLink.addEventListener('click', function(e) {
             e.preventDefault();
             window.open(purchaseUrl, '_blank');
+        });
+
+        resetBtn.addEventListener('click', function() {
+            localStorage.removeItem('schulte_activated');
+            location.reload();
         });
 
         // ============================================================
