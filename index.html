@@ -1129,13 +1129,16 @@
             if (e.target === activationModal) hideActivationModal();
         });
 
+        // 购买链接（面包多）
+        var purchaseUrl = 'https://mbd.pub/o/bread/YZaTmJpsZQ==';
+
         purchaseBtn.addEventListener('click', function() {
-            showActivationModal();
+            window.open(purchaseUrl, '_blank');
         });
 
         activationPurchaseLink.addEventListener('click', function(e) {
             e.preventDefault();
-            showToast('购买链接即将上线，敬请期待', 'success', 2000);
+            window.open(purchaseUrl, '_blank');
         });
 
         // ============================================================
